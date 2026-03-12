@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-profile="${1:-}"
-case "$profile" in
-  power-saver|balanced|performance) ;;
-  *)
-    echo "Usage: $(basename "$0") {power-saver|balanced|performance}" >&2
-    exit 2
-    ;;
-esac
-
-powerprofilesctl set "$profile"
-powerprofilesctl get
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+"$REPO_ROOT/install/compat/cachyos/power.sh" set "${1:-}"
