@@ -17,7 +17,7 @@ fi
 
 cat > "$ENV_FILE" <<EOC
 OMARCHY_RUNTIME_DIR=$RUNTIME_DIR
-PATH=$LOCAL_BIN:$RUNTIME_DIR/bin:$PATH
+PATH=$LOCAL_BIN:$RUNTIME_DIR/bin:\$PATH
 EOC
 
 echo "Post-install complete."
