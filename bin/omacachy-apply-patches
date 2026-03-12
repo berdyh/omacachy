@@ -14,8 +14,11 @@ if compgen -G "$PATCH_DIR/*.patch" > /dev/null; then
   done
 fi
 
-if [ -d "$OVERLAY_DIR" ] && [ "$(find "$OVERLAY_DIR" -mindepth 1 -print -quit)" ]; then
-  cp -a "$OVERLAY_DIR"/. "$RUNTIME_DIR"/
+if [ -d "$OVERLAY_DIR" ] && [ "$(find "$OVERLAY_DIR" -mindepth 1 ! -name '.gitkeep' ! -name 'README.md' -print -quit)" ]; then
+  (
+    cd "$OVERLAY_DIR"
+    find . -mindepth 1 ! -name '.gitkeep' ! -name 'README.md' -exec cp -a --parents '{}' "$RUNTIME_DIR" ';'
+  )
 fi
 
 echo "Applied local compatibility patches/overlays to $RUNTIME_DIR"
