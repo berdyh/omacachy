@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
+PATCH_DIR="$REPO_ROOT/install/patches"
+OVERLAY_DIR="$REPO_ROOT/install/overlays"
+
+[ -d "$RUNTIME_DIR" ] || { echo "Runtime tree missing at $RUNTIME_DIR" >&2; exit 1; }
+
+if compgen -G "$PATCH_DIR/*.patch" > /dev/null; then
+  for patch in "$PATCH_DIR"/*.patch; do
+    git -C "$RUNTIME_DIR" apply --whitespace=fix "$patch"
+  done
+fi
+
+if [ -d "$OVERLAY_DIR" ] && [ "$(find "$OVERLAY_DIR" -mindepth 1 -print -quit)" ]; then
+  cp -a "$OVERLAY_DIR"/. "$RUNTIME_DIR"/
+fi
+
+echo "Applied local compatibility patches/overlays to $RUNTIME_DIR"

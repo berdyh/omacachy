@@ -1,0 +1,39 @@
+name: upstream-drift
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone omarchy-upstream
+        run: |
+          ref=$(cat .omarchy-upstream-ref)
+          git clone https://github.com/berdyh/omarchy-upstream.git /tmp/omarchy-upstream
+          git -C /tmp/omarchy-upstream checkout "$ref"
+      - name: Fail if high-risk files changed recently upstream
+        run: |
+          set -euo pipefail
+          base=$(cat .omarchy-upstream-base)
+
+          git -C /tmp/omarchy-upstream diff --name-only "$base"..HEAD -- \
+            install/preflight/guard.sh \
+            install/preflight/pacman.sh \
+            install/post-install/pacman.sh \
+            install/config/hardware/nvidia.sh \
+            'install/login/*.sh' \
+            'bin/omarchy-update*' \
+            config/uwsm/env \
+            config/hypr/bindings.conf | tee /tmp/changed.txt
+
+          if grep -q . /tmp/changed.txt; then
+            echo "High-risk upstream drift detected; compatibility review required in omacachy."
+            exit 1
+          fi
+
+          echo "No high-risk upstream drift in monitored window."

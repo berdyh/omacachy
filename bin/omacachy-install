@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ "$(id -u)" -eq 0 ]; then
+  echo "Run as normal user, not root." >&2
+  exit 1
+fi
+
+"$REPO_ROOT/install/compat/cachyos/detect.sh"
+"$REPO_ROOT/install/compat/cachyos/preflight.sh"
+
+"$REPO_ROOT/bin/omacachy-sync-upstream"
+"$REPO_ROOT/bin/omacachy-apply-patches"
+
+"$REPO_ROOT/install/compat/cachyos/pacman.sh"
+"$REPO_ROOT/install/compat/cachyos/gpu.sh"
+"$REPO_ROOT/install/compat/cachyos/boot.sh"
+"$REPO_ROOT/install/compat/cachyos/sddm.sh"
+"$REPO_ROOT/install/compat/cachyos/post-install.sh"
+
+echo "omacachy installed Omarchy on top of an existing CachyOS base system."
+echo "Runtime path: ${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"

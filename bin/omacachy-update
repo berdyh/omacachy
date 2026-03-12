@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
+
+"$REPO_ROOT/install/compat/cachyos/detect.sh"
+"$REPO_ROOT/bin/omacachy-sync-upstream"
+"$REPO_ROOT/bin/omacachy-apply-patches"
+"$REPO_ROOT/install/compat/cachyos/pacman.sh"
+
+if [ -x "$RUNTIME_DIR/bin/omarchy-migrate" ]; then
+  "$RUNTIME_DIR/bin/omarchy-migrate"
+fi
+
+source "$REPO_ROOT/install/compat/cachyos/aur.sh"
+aur_update
+
+echo "Update complete. Reboot if kernel/driver updates were installed."
