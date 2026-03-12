@@ -11,8 +11,22 @@ case "${script_name}" in
   omacachy-update) target="update.sh" ;;
   omacachy-sync-upstream) target="scripts/sync-upstream.sh" ;;
   omacachy-apply-patches) target="scripts/apply-patches.sh" ;;
-  omacachy-power-status) target="install/compat/cachyos/power.sh"; set -- status "$@" ;;
-  omacachy-power-profile) target="install/compat/cachyos/power.sh"; set -- profile "$@" ;;
+  omacachy-power-status)
+    if [[ -x "${UPSTREAM_ROOT}/install/compat/cachyos/power-status.sh" ]]; then
+      target="install/compat/cachyos/power-status.sh"
+    else
+      target="install/compat/cachyos/power.sh"
+      set -- status "$@"
+    fi
+    ;;
+  omacachy-power-profile)
+    if [[ -x "${UPSTREAM_ROOT}/install/compat/cachyos/power-profile.sh" ]]; then
+      target="install/compat/cachyos/power-profile.sh"
+    else
+      target="install/compat/cachyos/power.sh"
+      set -- profile "$@"
+    fi
+    ;;
   *) echo "Unknown command: ${script_name}" >&2; exit 2 ;;
 esac
 
