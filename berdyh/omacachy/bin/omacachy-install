@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Wrapper-only CLI for the omacachy overlay on top of berdyh/omarchy-upstream.
+script_name="$(basename "$0")"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UPSTREAM_ROOT="${UPSTREAM_ROOT:-${repo_root}/../omarchy-upstream}"
+
+case "${script_name}" in
+  omacachy-install) target="install.sh" ;;
+  omacachy-update) target="update.sh" ;;
+  omacachy-sync-upstream) target="scripts/sync-upstream.sh" ;;
+  omacachy-apply-patches) target="scripts/apply-patches.sh" ;;
+  omacachy-power-status) target="install/compat/cachyos/power-status.sh" ;;
+  omacachy-power-profile) target="install/compat/cachyos/power-profile.sh" ;;
+  *) echo "Unknown command: ${script_name}" >&2; exit 2 ;;
+esac
+
+exec "${UPSTREAM_ROOT}/${target}" "$@"
