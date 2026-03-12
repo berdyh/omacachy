@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Thin overlay hook. Add CachyOS-specific overrides here if needed, then delegate.
+# Thin overlay hook: resolve upstream relative to this file, then delegate.
 script_name="$(basename "$0")"
-UPSTREAM_ROOT="${UPSTREAM_ROOT:-../omarchy-upstream}"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../../.." && pwd)"
+UPSTREAM_ROOT="${UPSTREAM_ROOT:-${repo_root}/../omarchy-upstream}"
+
 exec "${UPSTREAM_ROOT}/install/compat/cachyos/${script_name}" "$@"
