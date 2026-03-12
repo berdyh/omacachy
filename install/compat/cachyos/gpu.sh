@@ -24,8 +24,10 @@ echo "$pci_out" | grep -Eiq 'amd|advanced micro devices|ati' && has_amd=1 || tru
 echo "$pci_out" | grep -Eiq 'intel' && has_intel=1 || true
 
 profile=""
-if [ "$has_nvidia" -eq 1 ] && [ "$has_amd" -eq 1 -o "$has_intel" -eq 1 ]; then
-  profile="hybrid"
+if [ "$has_nvidia" -eq 1 ] && [ "$has_intel" -eq 1 ]; then
+  profile="hybrid-intel-nvidia"
+elif [ "$has_nvidia" -eq 1 ] && [ "$has_amd" -eq 1 ]; then
+  profile="hybrid-amd-nvidia"
 elif [ "$has_nvidia" -eq 1 ]; then
   profile="nvidia"
 elif [ "$has_amd" -eq 1 ]; then
@@ -49,10 +51,21 @@ if [ "${OMACACHY_APPLY_CHWD:-0}" != "1" ]; then
 fi
 
 case "$profile" in
-  nvidia) chwd --force -i pci nvidia ;;
-  amd|intel) chwd --force -i pci video-linux ;;
-  hybrid) chwd --force -i pci hybrid-intel-nvidia-prime ;;
-  *) echo "Unknown profile; skipping automatic chwd apply." ;;
+  nvidia)
+    chwd --force -i pci nvidia
+    ;;
+  amd|intel)
+    chwd --force -i pci video-linux
+    ;;
+  hybrid-intel-nvidia)
+    chwd --force -i pci hybrid-intel-nvidia-prime
+    ;;
+  hybrid-amd-nvidia)
+    chwd --force -i pci hybrid-amd-nvidia-prime
+    ;;
+  *)
+    echo "Unknown profile; skipping automatic chwd apply."
+    ;;
 esac
 
 echo "If GPU stack changed, regenerate boot artifacts with: sudo limine-mkinitcpio"
