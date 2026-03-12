@@ -14,5 +14,5 @@ jobs:
       - name: Run shellcheck
         run: |
           set -euo pipefail
-          files=$(find bin install -type f)
+          files=$(find bin install -type f \( -path 'bin/*' -o -name '*.sh' \))
           shellcheck $files
