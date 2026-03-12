@@ -2,6 +2,10 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
+
+echo "omacachy: installing Omarchy on top of an existing CachyOS base system"
+echo "(Not an ISO builder / not a USB installer)"
 
 if [ "$(id -u)" -eq 0 ]; then
   echo "Run as normal user, not root." >&2
@@ -18,7 +22,8 @@ fi
 "$REPO_ROOT/install/compat/cachyos/gpu.sh"
 "$REPO_ROOT/install/compat/cachyos/boot.sh"
 "$REPO_ROOT/install/compat/cachyos/sddm.sh"
+"$REPO_ROOT/install/compat/cachyos/power.sh" status
 "$REPO_ROOT/install/compat/cachyos/post-install.sh"
 
-echo "omacachy installed Omarchy on top of an existing CachyOS base system."
-echo "Runtime path: ${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
+echo "Install complete."
+echo "Runtime path: $RUNTIME_DIR"

@@ -13,6 +13,14 @@ if [ -x "$RUNTIME_DIR/bin/omarchy-migrate" ]; then
   "$RUNTIME_DIR/bin/omarchy-migrate"
 fi
 
+if command -v pacman >/dev/null 2>&1; then
+  if [ "$EUID" -eq 0 ]; then
+    pacman -Syu --noconfirm
+  else
+    sudo pacman -Syu --noconfirm
+  fi
+fi
+
 source "$REPO_ROOT/install/compat/cachyos/aur.sh"
 aur_update
 

@@ -6,7 +6,9 @@
 - refresh runtime tree at `~/.local/share/omarchy`
 - reapply overlays/patches
 - run Omarchy migrations when available
-- update packages using `paru`
+- run system package update via `pacman -Syu`
+- run AUR update via canonical helper `paru`
 
-`paru` is canonical to avoid scattered helper assumptions.
+Pacman coexistence rules still apply: no replacement of `/etc/pacman.conf` or `/etc/pacman.d/mirrorlist`.
+
 Future CI can flag upstream drift and require compatibility review before downstream promotion.

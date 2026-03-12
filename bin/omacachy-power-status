@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-powerprofilesctl get
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+"$REPO_ROOT/install/compat/cachyos/power.sh" status

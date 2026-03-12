@@ -1,7 +1,29 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Limine-safe mode: not overwriting /boot/limine.conf from omacachy."
+# Limine-safe behavior. No /boot/limine.conf takeover.
+# Optional apply mode: OMACACHY_APPLY_LIMINE=1
+
+echo "Limine-safe mode active: omacachy does not overwrite /boot/limine.conf."
+
 if [ -f /etc/default/limine ]; then
-  echo "CachyOS boot config present at /etc/default/limine"
+  echo "Found /etc/default/limine (CachyOS-owned)."
+else
+  echo "Warning: /etc/default/limine not found." >&2
+fi
+
+if [ "${OMACACHY_APPLY_LIMINE:-0}" != "1" ]; then
+  echo "Dry-run only. Set OMACACHY_APPLY_LIMINE=1 to run limine-mkinitcpio."
+  exit 0
+fi
+
+if command -v limine-mkinitcpio >/dev/null 2>&1; then
+  if [ "$EUID" -eq 0 ]; then
+    limine-mkinitcpio
+  else
+    sudo limine-mkinitcpio
+  fi
+  echo "limine-mkinitcpio executed."
+else
+  echo "limine-mkinitcpio not found; cannot apply boot regeneration." >&2
 fi

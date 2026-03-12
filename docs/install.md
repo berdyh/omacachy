@@ -4,7 +4,8 @@
 
 - Existing CachyOS installation
 - User account with sudo access
-- git, bash, paru
+- git, bash
+- recommended: paru, chwd, powerprofilesctl, limine-mkinitcpio
 
 ## Flow
 
@@ -15,15 +16,24 @@
 5. apply local patches/overlays
 6. run CachyOS compatibility hooks
 
+## Optional apply toggles
+
+- `OMACACHY_APPLY_CHWD=1` to apply detected GPU profile through `chwd`
+- `OMACACHY_APPLY_LIMINE=1` to run `limine-mkinitcpio`
+- `OMACACHY_ENABLE_SDDM=1` to enable `sddm.service`
+
+By default these run in safe dry-run/reporting mode.
+
 ## What changes
 
 - Omarchy runtime and userland configs are installed
-- session/user frontend integration is enabled
+- session/frontend integration hooks are prepared
+- runtime helper binaries are linked into `~/.local/bin`
 
 ## What does not change
 
 - no ISO/USB flow
-- no takeover of pacman/mirrorlist
-- no boot takeover
+- no takeover of `/etc/pacman.conf` or mirrorlist
+- no boot takeover of `/boot/limine.conf`
 - no GPU backend takeover
 - no swap policy override
