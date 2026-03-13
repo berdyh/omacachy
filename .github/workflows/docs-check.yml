@@ -1,0 +1,32 @@
+name: docs-check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required docs exist
+        run: |
+          set -euo pipefail
+          for f in \
+            README.md \
+            docs/sources.md \
+            docs/architecture.md \
+            docs/compatibility/cachyos.md \
+            docs/install.md \
+            docs/update-strategy.md \
+            docs/power-ui.md \
+            docs/upstream-sync.md \
+            docs/repo-topology.md \
+            docs/shomacachy-downstream.md \
+            docs/test-matrix.md \
+            docs/decision-log.md; do
+            test -f "$f"
+          done
+      - name: Basic markdown link sanity
+        run: |
+          ! rg -n "\]\(\./\./" docs README.md

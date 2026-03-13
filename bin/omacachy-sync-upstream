@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/berdyh/omarchy-upstream.git}"
+CACHE_DIR="${OMACACHY_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/omacachy}"
+UPSTREAM_DIR="${UPSTREAM_DIR:-$CACHE_DIR/omarchy-upstream}"
+RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
+REF="${UPSTREAM_REF:-dev}"
+
+mkdir -p "$CACHE_DIR"
+
+if [ -d "$UPSTREAM_DIR/.git" ]; then
+  git -C "$UPSTREAM_DIR" remote set-url origin "$UPSTREAM_REPO"
+  git -C "$UPSTREAM_DIR" fetch --tags origin
+else
+  git clone "$UPSTREAM_REPO" "$UPSTREAM_DIR"
+fi
+
+git -C "$UPSTREAM_DIR" checkout "$REF"
+git -C "$UPSTREAM_DIR" pull --ff-only origin "$REF"
+
+rm -rf "$RUNTIME_DIR"
+mkdir -p "$(dirname "$RUNTIME_DIR")"
+cp -a "$UPSTREAM_DIR" "$RUNTIME_DIR"
+
+printf 'Synced %s (%s) to %s\n' "$UPSTREAM_REPO" "$REF" "$RUNTIME_DIR"
