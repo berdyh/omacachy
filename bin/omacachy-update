@@ -23,6 +23,10 @@ if command -v pacman >/dev/null 2>&1; then
 fi
 
 source "$REPO_ROOT/install/compat/cachyos/aur.sh"
-aur_update
+if command -v paru >/dev/null 2>&1; then
+  aur_update
+else
+  echo "paru not found; skipping AUR update." >&2
+fi
 
 echo "Update complete. Reboot if kernel/driver updates were installed."
