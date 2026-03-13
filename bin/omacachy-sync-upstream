@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UPSTREAM_REPO="${UPSTREAM_REPO:-https://github.com/berdyh/omarchy-upstream.git}"
 CACHE_DIR="${OMACACHY_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/omacachy}"
 UPSTREAM_DIR="${UPSTREAM_DIR:-$CACHE_DIR/omarchy-upstream}"
@@ -19,8 +20,7 @@ fi
 git -C "$UPSTREAM_DIR" checkout "$REF"
 git -C "$UPSTREAM_DIR" pull --ff-only origin "$REF"
 
-rm -rf "$RUNTIME_DIR"
-mkdir -p "$(dirname "$RUNTIME_DIR")"
-cp -a "$UPSTREAM_DIR" "$RUNTIME_DIR"
+UPSTREAM_DIR="$UPSTREAM_DIR" OMARCHY_RUNTIME_DIR="$RUNTIME_DIR" \
+  "$REPO_ROOT/install/compat/cachyos/runtime-sync.sh"
 
 printf 'Synced %s (%s) to %s\n' "$UPSTREAM_REPO" "$REF" "$RUNTIME_DIR"

@@ -2,14 +2,18 @@
 set -euo pipefail
 
 # Limine-safe behavior. No /boot/limine.conf takeover.
-# Optional apply mode: OMACACHY_APPLY_LIMINE=1
+# Persistent changes belong in /etc/default/limine, then limine-mkinitcpio.
 
 echo "Limine-safe mode active: omacachy does not overwrite /boot/limine.conf."
 
 if [ -f /etc/default/limine ]; then
-  echo "Found /etc/default/limine (CachyOS-owned)."
+  echo "Found /etc/default/limine (CachyOS-owned persistence point)."
 else
   echo "Warning: /etc/default/limine not found." >&2
+fi
+
+if rg -n --fixed-strings '/boot/limine.conf' "${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"/install 2>/dev/null; then
+  echo "Warning: runtime references /boot/limine.conf directly; omacachy will not execute takeover paths." >&2
 fi
 
 if [ "${OMACACHY_APPLY_LIMINE:-0}" != "1" ]; then
@@ -26,4 +30,5 @@ if command -v limine-mkinitcpio >/dev/null 2>&1; then
   echo "limine-mkinitcpio executed."
 else
   echo "limine-mkinitcpio not found; cannot apply boot regeneration." >&2
+  exit 1
 fi

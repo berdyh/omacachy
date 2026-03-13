@@ -45,7 +45,7 @@ This detects CachyOS, syncs from `berdyh/omarchy-upstream`, populates `~/.local/
 bin/omacachy-update
 ```
 
-This refreshes upstream, reapplies compatibility overlays/patches, runs migrations when present, and updates packages via `paru`.
+This performs lock-protected upstream sync with checkpoints/rollback, reapplies deterministic compatibility overlays/patches, validates runtime/session readiness, runs migrations when present, and updates packages via canonical `paru`.
 
 ## Documentation
 
