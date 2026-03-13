@@ -11,22 +11,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Clone omarchy-upstream
         run: |
+          set -euo pipefail
           ref=$(cat .omarchy-upstream-ref)
           git clone https://github.com/berdyh/omarchy-upstream.git /tmp/omarchy-upstream
           git -C /tmp/omarchy-upstream checkout "$ref"
-      - name: Fail if high-risk files changed recently upstream
+          git -C /tmp/omarchy-upstream fetch origin dev
+
+      - name: Fail if high-risk files changed upstream since merge-base
         run: |
           set -euo pipefail
-          base=$(cat .omarchy-upstream-base)
+          base=$(git -C /tmp/omarchy-upstream merge-base HEAD origin/dev)
 
-          git -C /tmp/omarchy-upstream diff --name-only "$base"..HEAD -- \
-            install/preflight/guard.sh \
-            install/preflight/pacman.sh \
-            install/post-install/pacman.sh \
-            install/config/hardware/nvidia.sh \
-            'install/login/*.sh' \
+          git -C /tmp/omarchy-upstream diff --name-only "$base"..origin/dev -- \
+            'install/preflight/*' \
+            'install/post-install/*' \
+            'install/login/*' \
+            'install/config/hardware/*' \
             'bin/omarchy-update*' \
             config/uwsm/env \
             config/hypr/bindings.conf | tee /tmp/changed.txt
