@@ -17,13 +17,15 @@ fi
 
 "$REPO_ROOT/bin/omacachy-sync-upstream"
 "$REPO_ROOT/bin/omacachy-apply-patches"
+"$REPO_ROOT/install/compat/cachyos/enforce-boundaries.sh"
 
 "$REPO_ROOT/install/compat/cachyos/pacman.sh"
 "$REPO_ROOT/install/compat/cachyos/gpu.sh"
 "$REPO_ROOT/install/compat/cachyos/boot.sh"
-"$REPO_ROOT/install/compat/cachyos/sddm.sh"
+"$REPO_ROOT/install/compat/cachyos/sddm.sh" status
 "$REPO_ROOT/install/compat/cachyos/power.sh" status
 "$REPO_ROOT/install/compat/cachyos/post-install.sh"
+"$REPO_ROOT/install/compat/cachyos/validate-runtime.sh" post-install
 
 echo "Install complete."
 echo "Runtime path: $RUNTIME_DIR"

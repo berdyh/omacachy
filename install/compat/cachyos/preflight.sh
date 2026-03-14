@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-required=(git bash)
-optional=(paru powerprofilesctl chwd limine-mkinitcpio)
+required=(git bash paru)
+optional=(powerprofilesctl chwd limine-mkinitcpio)
 
 for cmd in "${required[@]}"; do
-  command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required command: $cmd" >&2; exit 1; }
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "Missing required command: $cmd" >&2
+    if [ "$cmd" = "paru" ]; then
+      echo "Install paru first (canonical AUR helper), then rerun omacachy." >&2
+    fi
+    exit 1
+  }
 done
 
 for cmd in "${optional[@]}"; do
