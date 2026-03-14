@@ -5,7 +5,8 @@
 - Existing CachyOS installation
 - User account with sudo access
 - git, bash
-- recommended: paru, chwd, powerprofilesctl, limine-mkinitcpio
+- required: paru (canonical AUR helper), git, bash
+- recommended: chwd, powerprofilesctl, limine-mkinitcpio
 
 ## Flow
 
@@ -37,3 +38,17 @@ By default these run in safe dry-run/reporting mode.
 - no boot takeover of `/boot/limine.conf`
 - no GPU backend takeover
 - no swap policy override
+
+
+## Post-install hardening checks
+
+```bash
+install/compat/cachyos/validate-runtime.sh post-install
+```
+
+This fails loudly if key launcher/menu/terminal helpers, PATH wiring, UWSM env, or SDDM session visibility are broken.
+
+
+## Non-SDDM compatibility mode
+
+- `OMACACHY_ALLOW_NO_SDDM=1` allows validation to continue on non-SDDM systems (compatibility/testing mode).

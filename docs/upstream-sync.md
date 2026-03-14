@@ -3,9 +3,12 @@
 Sync process:
 
 1. fetch `berdyh/omarchy-upstream`
-2. update runtime tree
-3. reapply compatibility patches/overlays
-4. run drift checks on high-risk files
+2. create candidate runtime tree
+3. preserve user customization paths
+4. regenerate upstream-owned paths
+5. checkpoint backup + lock-protected switch
+6. reapply compatibility patches/overlays deterministically
+7. run boundary and runtime/session validation checks
 
 High-risk files include:
 

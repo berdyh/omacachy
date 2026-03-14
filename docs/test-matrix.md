@@ -11,18 +11,31 @@
 
 - installer rejects non-CachyOS
 - installer rejects root execution
-- upstream sync populates runtime path
+- upstream sync creates checkpoint + lock-guarded runtime replacement
 - update path runs migrations when present
-- power profile status/switch commands function
+- runtime validation checks:
+  - key helpers (`omarchy-launcher`, `omarchy-menu`, `omarchy-terminal`)
+  - launcher backend availability (`walker`/`wofi`/`rofi`)
+  - terminal backend availability (`kitty`/`foot`/`alacritty`/`wezterm`)
+  - browser handoff (`xdg-open`)
+  - keybinding file checks for `SUPER+Return`, `SUPER+space`, `SUPER+ALT+space`
+  - UWSM env visibility and SDDM session entries
 
-## Failure cases
+## Failure triage
 
-- missing `paru`
-- missing `chwd`
-- no network for upstream sync
+- patch apply conflicts: rerun `bin/omacachy-apply-patches` and inspect failing patch
+- sync failures: restore from `~/.local/state/omacachy/backups/<timestamp>`
+- session/PATH failures: rerun `install/compat/cachyos/post-install.sh` then `install/compat/cachyos/validate-runtime.sh`
+- missing helper commands: install required launcher/terminal dependencies and rerun validation
+- broken menu/launcher/bindings: verify `~/.local/share/omarchy/config/hypr/bindings.conf` and wrapper presence in runtime `bin/`
 
 ## Rollback notes
 
-- remove runtime tree `~/.local/share/omarchy`
-- remove symlinks from `~/.local/bin`
-- revert any local overlay changes
+- checkpoint restore:
+  - `cp -a ~/.local/state/omacachy/backups/<timestamp> ~/.local/share/omarchy`
+- rerun checks:
+  - `install/compat/cachyos/validate-runtime.sh post-update`
+
+Non-SDDM compatibility/testing override:
+
+- `OMACACHY_ALLOW_NO_SDDM=1` allows validation to continue when SDDM is unavailable.

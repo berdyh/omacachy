@@ -5,19 +5,53 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
 PATCH_DIR="$REPO_ROOT/install/patches"
 OVERLAY_DIR="$REPO_ROOT/install/overlays"
+STATE_DIR="${OMACACHY_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/omacachy}"
+STAMP_DIR="$STATE_DIR/patch-stamps"
 
-[ -d "$RUNTIME_DIR" ] || { echo "Runtime tree missing at $RUNTIME_DIR" >&2; exit 1; }
+[ -d "$RUNTIME_DIR/.git" ] || { echo "Runtime tree missing or not a git repo at $RUNTIME_DIR" >&2; exit 1; }
+mkdir -p "$STAMP_DIR"
+
+apply_patch_once() {
+  local patch="$1"
+  local patch_name
+  patch_name="$(basename "$patch")"
+  local stamp_file="$STAMP_DIR/${patch_name}.applied"
+
+  if [ -f "$stamp_file" ] && git -C "$RUNTIME_DIR" apply --check -R "$patch" >/dev/null 2>&1; then
+    echo "Patch already applied: $patch_name"
+    return 0
+  fi
+
+  if git -C "$RUNTIME_DIR" apply --check "$patch" >/dev/null 2>&1; then
+    git -C "$RUNTIME_DIR" apply --whitespace=fix "$patch"
+    date -Iseconds > "$stamp_file"
+    echo "Applied patch: $patch_name"
+    return 0
+  fi
+
+  if git -C "$RUNTIME_DIR" apply --check -R "$patch" >/dev/null 2>&1; then
+    echo "Patch content already present (detected reverse apply): $patch_name"
+    date -Iseconds > "$stamp_file"
+    return 0
+  fi
+
+  echo "Patch failed and is not reversible cleanly: $patch_name" >&2
+  return 1
+}
 
 if compgen -G "$PATCH_DIR/*.patch" > /dev/null; then
-  for patch in "$PATCH_DIR"/*.patch; do
-    git -C "$RUNTIME_DIR" apply --whitespace=fix "$patch"
-  done
+  while IFS= read -r patch; do
+    apply_patch_once "$patch"
+  done < <(find "$PATCH_DIR" -maxdepth 1 -type f -name '*.patch' | sort)
 fi
 
 if [ -d "$OVERLAY_DIR" ] && [ "$(find "$OVERLAY_DIR" -mindepth 1 ! -name '.gitkeep' ! -name 'README.md' -print -quit)" ]; then
   (
     cd "$OVERLAY_DIR"
-    find . -mindepth 1 ! -name '.gitkeep' ! -name 'README.md' -exec cp -a --parents '{}' "$RUNTIME_DIR" ';'
+    find . -mindepth 1 \( -type f -o -type l \) ! -name '.gitkeep' ! -name 'README.md' -print0 | sort -z |
+      while IFS= read -r -d '' path; do
+        cp -a --parents "$path" "$RUNTIME_DIR"
+      done
   )
 fi
 

@@ -3,19 +3,36 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
-
-"$REPO_ROOT/install/compat/cachyos/detect.sh"
-"$REPO_ROOT/bin/omacachy-sync-upstream"
-"$REPO_ROOT/bin/omacachy-apply-patches"
-"$REPO_ROOT/install/compat/cachyos/pacman.sh"
-
-if [ -x "$RUNTIME_DIR/bin/omarchy-migrate" ]; then
-  "$RUNTIME_DIR/bin/omarchy-migrate"
-fi
+STATE_DIR="${OMACACHY_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/omacachy}"
+RUN_LOCK="$STATE_DIR/update-run.lock"
 
 if [ "$(id -u)" -eq 0 ]; then
   echo "Run as normal user, not root." >&2
   exit 1
+fi
+
+if ! command -v paru >/dev/null 2>&1; then
+  echo "paru is required for omacachy-update. Install paru and rerun update." >&2
+  exit 1
+fi
+
+mkdir -p "$STATE_DIR"
+if mkdir "$RUN_LOCK" 2>/dev/null; then
+  trap 'rmdir "$RUN_LOCK" >/dev/null 2>&1 || true' EXIT
+else
+  echo "Update already running (lock: $RUN_LOCK)." >&2
+  exit 1
+fi
+
+"$REPO_ROOT/install/compat/cachyos/detect.sh"
+"$REPO_ROOT/install/compat/cachyos/preflight.sh"
+"$REPO_ROOT/bin/omacachy-sync-upstream"
+"$REPO_ROOT/bin/omacachy-apply-patches"
+"$REPO_ROOT/install/compat/cachyos/enforce-boundaries.sh"
+"$REPO_ROOT/install/compat/cachyos/pacman.sh"
+
+if [ -x "$RUNTIME_DIR/bin/omarchy-migrate" ]; then
+  "$RUNTIME_DIR/bin/omarchy-migrate"
 fi
 
 if command -v pacman >/dev/null 2>&1; then
@@ -23,10 +40,9 @@ if command -v pacman >/dev/null 2>&1; then
 fi
 
 source "$REPO_ROOT/install/compat/cachyos/aur.sh"
-if command -v paru >/dev/null 2>&1; then
-  aur_update
-else
-  echo "paru not found; skipping AUR update." >&2
-fi
+aur_update
+
+"$REPO_ROOT/install/compat/cachyos/post-install.sh"
+"$REPO_ROOT/install/compat/cachyos/validate-runtime.sh" post-update
 
 echo "Update complete. Reboot if kernel/driver updates were installed."
