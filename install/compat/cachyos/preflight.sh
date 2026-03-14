@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-required=(git bash paru)
+required=(git bash paru rg)
 optional=(powerprofilesctl chwd limine-mkinitcpio)
 
 for cmd in "${required[@]}"; do

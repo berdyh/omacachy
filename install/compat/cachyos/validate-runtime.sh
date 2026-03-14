@@ -16,16 +16,29 @@ require_cmd() {
 
 [ -d "$RUNTIME_DIR" ] || fail "runtime directory missing: $RUNTIME_DIR"
 [ -d "$RUNTIME_DIR/bin" ] || fail "runtime bin missing: $RUNTIME_DIR/bin"
+command -v rg >/dev/null 2>&1 || fail "rg (ripgrep) is required for runtime validation"
 
-case ":$PATH:" in
-  *":$LOCAL_BIN:"*) ;;
-  *) fail "PATH is missing $LOCAL_BIN; run post-install/session env refresh" ;;
-esac
+if [ "$mode" != "post-install" ]; then
+  case ":$PATH:" in
+    *":$LOCAL_BIN:"*) ;;
+    *) fail "PATH is missing $LOCAL_BIN; run post-install/session env refresh" ;;
+  esac
 
-case ":$PATH:" in
-  *":$RUNTIME_DIR/bin:"*) ;;
-  *) fail "PATH is missing $RUNTIME_DIR/bin; session env not coherent" ;;
-esac
+  case ":$PATH:" in
+    *":$RUNTIME_DIR/bin:"*) ;;
+    *) fail "PATH is missing $RUNTIME_DIR/bin; session env not coherent" ;;
+  esac
+else
+  case ":$PATH:" in
+    *":$LOCAL_BIN:"*) ;;
+    *) echo "VALIDATION WARNING: PATH is missing $LOCAL_BIN; expected after next login" >&2 ;;
+  esac
+
+  case ":$PATH:" in
+    *":$RUNTIME_DIR/bin:"*) ;;
+    *) echo "VALIDATION WARNING: PATH is missing $RUNTIME_DIR/bin; expected after next login" >&2 ;;
+  esac
+fi
 
 export PATH="$LOCAL_BIN:$RUNTIME_DIR/bin:$PATH"
 

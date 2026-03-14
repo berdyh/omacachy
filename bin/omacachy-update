@@ -6,6 +6,11 @@ RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
 STATE_DIR="${OMACACHY_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/omacachy}"
 RUN_LOCK="$STATE_DIR/update-run.lock"
 
+if [ "$(id -u)" -eq 0 ]; then
+  echo "Run as normal user, not root." >&2
+  exit 1
+fi
+
 mkdir -p "$STATE_DIR"
 if mkdir "$RUN_LOCK" 2>/dev/null; then
   trap 'rmdir "$RUN_LOCK" >/dev/null 2>&1 || true' EXIT
@@ -22,11 +27,6 @@ fi
 
 if [ -x "$RUNTIME_DIR/bin/omarchy-migrate" ]; then
   "$RUNTIME_DIR/bin/omarchy-migrate"
-fi
-
-if [ "$(id -u)" -eq 0 ]; then
-  echo "Run as normal user, not root." >&2
-  exit 1
 fi
 
 if command -v pacman >/dev/null 2>&1; then

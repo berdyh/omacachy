@@ -5,6 +5,7 @@ RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
 FILTER_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/package-filter.sh"
 
 [ -d "$RUNTIME_DIR" ] || { echo "Runtime missing: $RUNTIME_DIR" >&2; exit 1; }
+command -v rg >/dev/null 2>&1 || { echo "rg (ripgrep) is required for boundary enforcement" >&2; exit 1; }
 
 # Guard against backend ownership takeover in runtime scripts.
 forbidden_patterns=(

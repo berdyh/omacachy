@@ -12,7 +12,12 @@ check_session_entries() {
   local found=0
   for dir in /usr/share/wayland-sessions /usr/local/share/wayland-sessions; do
     [ -d "$dir" ] || continue
-    if find "$dir" -maxdepth 1 -type f -name '*.desktop' | rg -q '.*'; then
+    if command -v rg >/dev/null 2>&1; then
+      if find "$dir" -maxdepth 1 -type f -name '*.desktop' | rg -q '.'; then
+        echo "Found Wayland sessions in $dir"
+        found=1
+      fi
+    elif find "$dir" -maxdepth 1 -type f -name '*.desktop' | grep -q '.'; then
       echo "Found Wayland sessions in $dir"
       found=1
     fi
