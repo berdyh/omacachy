@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+for term in kitty foot alacritty wezterm; do
+  if command -v "$term" >/dev/null 2>&1; then
+    exec "$term"
+  fi
+done
+
+echo "No supported terminal found (kitty/foot/alacritty/wezterm)." >&2
+exit 1

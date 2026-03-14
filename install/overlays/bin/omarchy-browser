@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+url="${1:-https://example.com}"
+
+if command -v xdg-open >/dev/null 2>&1; then
+  exec xdg-open "$url"
+fi
+
+echo "xdg-open missing; cannot open browser target: $url" >&2
+exit 1
