@@ -78,7 +78,7 @@ NEW_TREE="$WORK_DIR/new"
 mkdir -p "$NEW_TREE"
 cp -a "$UPSTREAM_DIR"/. "$NEW_TREE"/
 
-if [ -d "$RUNTIME_DIR/.git" ]; then
+if [ -d "$RUNTIME_DIR" ]; then
   BACKUP_ID="$(date +%Y%m%d-%H%M%S)"
   BACKUP_DIR="$BACKUP_ROOT/$BACKUP_ID"
   cp -a "$RUNTIME_DIR" "$BACKUP_DIR"

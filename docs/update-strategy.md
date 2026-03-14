@@ -6,7 +6,7 @@
 2. build a new candidate runtime tree
 3. preserve user-safe paths from current runtime (`local`, `tmp`, `logs`, `config/local`, `config/custom`)
 4. regenerate Omarchy-owned paths (`bin`, `config`, `themes`) from upstream
-5. checkpoint backup to `~/.local/state/omacachy/backups/<timestamp>`
+5. checkpoint backup of any existing runtime tree to `~/.local/state/omacachy/backups/<timestamp>`
 6. atomically switch runtime at `~/.local/share/omarchy` (same-filesystem rename within runtime parent)
 7. reapply deterministic compatibility patches/overlays
 8. run boundary enforcement and runtime/session validation checks

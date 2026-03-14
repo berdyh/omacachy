@@ -28,6 +28,7 @@ Concrete compatibility payload in overlays:
 
 These wrappers harden command resolution drift for launcher/menu/terminal/browser paths while preserving upstream ownership.
 
-Non-SDDM compatibility/testing override:
+Non-SDDM compatibility/testing overrides:
 
 - `OMACACHY_ALLOW_NO_SDDM=1` allows validation to continue when SDDM is unavailable.
+- `OMACACHY_REQUIRE_SDDM=1` enforces hard failure when SDDM is missing.
