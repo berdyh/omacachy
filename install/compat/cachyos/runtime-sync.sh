@@ -23,10 +23,38 @@ REGENERATE_PATHS=(
   "themes"
 )
 
+BACKUP_DIR=""
+ROLLBACK_DONE=0
+SYNC_DONE=0
+SWAP_COMPLETE=0
+HAS_LOCK=0
+
 cleanup() {
-  rm -rf "$WORK_DIR"
+  if [ "$SWAP_COMPLETE" -eq 1 ]; then
+    rm -rf "$WORK_DIR"
+  fi
 }
-trap cleanup EXIT
+
+rollback() {
+  [ "$SYNC_DONE" -eq 1 ] && return 0
+  [ "$ROLLBACK_DONE" -eq 1 ] && return 0
+  ROLLBACK_DONE=1
+
+  if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR" ]; then
+    rm -rf "$RUNTIME_DIR"
+    cp -a "$BACKUP_DIR" "$RUNTIME_DIR"
+    echo "Rolled back runtime to checkpoint: $BACKUP_DIR" >&2
+  fi
+}
+
+on_exit() {
+  rollback
+  if [ "$HAS_LOCK" -eq 1 ]; then
+    rmdir "$LOCK_FILE" >/dev/null 2>&1 || true
+  fi
+  cleanup
+}
+trap on_exit EXIT
 
 mkdir -p "$STATE_DIR" "$BACKUP_ROOT"
 
@@ -36,13 +64,12 @@ if [ -z "$UPSTREAM_DIR" ] || [ ! -d "$UPSTREAM_DIR/.git" ]; then
 fi
 
 if mkdir "$LOCK_FILE" 2>/dev/null; then
-  :
+  HAS_LOCK=1
 else
   echo "omacachy runtime sync lock is already held: $LOCK_FILE" >&2
   echo "If no update is running, remove it manually and retry." >&2
   exit 1
 fi
-trap 'rmdir "$LOCK_FILE" >/dev/null 2>&1 || true; cleanup' EXIT
 
 mkdir -p "$WORK_DIR"
 NEW_TREE="$WORK_DIR/new"
@@ -54,8 +81,6 @@ if [ -d "$RUNTIME_DIR/.git" ]; then
   BACKUP_DIR="$BACKUP_ROOT/$BACKUP_ID"
   cp -a "$RUNTIME_DIR" "$BACKUP_DIR"
   echo "Created backup checkpoint: $BACKUP_DIR"
-else
-  BACKUP_DIR=""
 fi
 
 for preserve in "${PRESERVE_PATHS[@]}"; do
@@ -74,25 +99,16 @@ for regen in "${REGENERATE_PATHS[@]}"; do
   echo "Regenerated runtime path: $regen"
 done
 
-ROLLBACK_DONE=0
-rollback() {
-  [ "$ROLLBACK_DONE" -eq 1 ] && return 0
-  ROLLBACK_DONE=1
-  if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR" ]; then
-    rm -rf "$RUNTIME_DIR"
-    cp -a "$BACKUP_DIR" "$RUNTIME_DIR"
-    echo "Rolled back runtime to checkpoint: $BACKUP_DIR" >&2
-  fi
-}
-
 rm -rf "$RUNTIME_DIR"
 mkdir -p "$(dirname "$RUNTIME_DIR")"
 
 if ! mv "$NEW_TREE" "$RUNTIME_DIR"; then
-  rollback
   echo "Failed to move new runtime tree into place." >&2
   exit 1
 fi
+
+SYNC_DONE=1
+SWAP_COMPLETE=1
 
 echo "Runtime sync completed safely at: $RUNTIME_DIR"
 if [ -n "$BACKUP_DIR" ]; then
