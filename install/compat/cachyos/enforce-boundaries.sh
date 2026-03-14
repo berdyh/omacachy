@@ -10,9 +10,9 @@ command -v rg >/dev/null 2>&1 || { echo "rg (ripgrep) is required for boundary e
 contains_forbidden_pattern() {
   local file="$1"
   local pattern="$2"
-  local hit line_no line
+  local line_no line
 
-  while IFS=: read -r line_no hit; do
+  while IFS=: read -r line_no _; do
     line="$(sed -n "${line_no}p" "$file")"
     # Ignore commented-only lines to reduce false positives in documentation comments.
     if [[ "$line" =~ ^[[:space:]]*# ]]; then
