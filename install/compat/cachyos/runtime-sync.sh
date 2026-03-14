@@ -26,13 +26,10 @@ REGENERATE_PATHS=(
 BACKUP_DIR=""
 ROLLBACK_DONE=0
 SYNC_DONE=0
-SWAP_COMPLETE=0
 HAS_LOCK=0
 
 cleanup() {
-  if [ "$SWAP_COMPLETE" -eq 1 ]; then
-    rm -rf "${WORK_DIR:?}"
-  fi
+  rm -rf "${WORK_DIR:?}"
 }
 
 rollback() {
@@ -108,7 +105,6 @@ if ! mv "$NEW_TREE" "$RUNTIME_DIR"; then
 fi
 
 SYNC_DONE=1
-SWAP_COMPLETE=1
 
 echo "Runtime sync completed safely at: $RUNTIME_DIR"
 if [ -n "$BACKUP_DIR" ]; then

@@ -17,6 +17,8 @@ require_cmd() {
 [ -d "$RUNTIME_DIR" ] || fail "runtime directory missing: $RUNTIME_DIR"
 [ -d "$RUNTIME_DIR/bin" ] || fail "runtime bin missing: $RUNTIME_DIR/bin"
 
+export PATH="$LOCAL_BIN:$RUNTIME_DIR/bin:$PATH"
+
 case ":$PATH:" in
   *":$LOCAL_BIN:"*) ;;
   *) fail "PATH is missing $LOCAL_BIN; run post-install/session env refresh" ;;
