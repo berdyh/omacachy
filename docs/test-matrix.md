@@ -35,3 +35,7 @@
   - `cp -a ~/.local/state/omacachy/backups/<timestamp> ~/.local/share/omarchy`
 - rerun checks:
   - `install/compat/cachyos/validate-runtime.sh post-update`
+
+Non-SDDM compatibility/testing override:
+
+- `OMACACHY_ALLOW_NO_SDDM=1` allows validation to continue when SDDM is unavailable.

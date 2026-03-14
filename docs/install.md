@@ -47,3 +47,8 @@ install/compat/cachyos/validate-runtime.sh post-install
 ```
 
 This fails loudly if key launcher/menu/terminal helpers, PATH wiring, UWSM env, or SDDM session visibility are broken.
+
+
+## Non-SDDM compatibility mode
+
+- `OMACACHY_ALLOW_NO_SDDM=1` allows validation to continue on non-SDDM systems (compatibility/testing mode).

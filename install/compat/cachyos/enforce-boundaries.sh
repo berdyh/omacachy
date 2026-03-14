@@ -47,7 +47,11 @@ done < <(find "$RUNTIME_DIR" -type f \( -name '*.sh' -o -name 'omarchy-*' \))
 for list_file in "$RUNTIME_DIR/install/packages/pacman.txt" "$RUNTIME_DIR/install/packages/aur.txt"; do
   [ -f "$list_file" ] || continue
   tmp="$(mktemp)"
-  "$FILTER_SCRIPT" < "$list_file" > "$tmp"
+  if ! "$FILTER_SCRIPT" < "$list_file" > "$tmp"; then
+    rm -f "$tmp"
+    echo "Package filter failed for: $list_file" >&2
+    exit 1
+  fi
   if ! cmp -s "$list_file" "$tmp"; then
     cp "$tmp" "$list_file"
     echo "Filtered backend-owned packages in: $list_file"

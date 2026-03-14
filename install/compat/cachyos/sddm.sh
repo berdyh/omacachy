@@ -28,30 +28,48 @@ check_session_entries() {
   }
 }
 
+sddm_present=0
 if systemctl list-unit-files | grep -q '^sddm.service'; then
+  sddm_present=1
   echo "SDDM service detected."
-else
+fi
+
+if [ "$sddm_present" -eq 0 ]; then
   if [ "${OMACACHY_ALLOW_NO_SDDM:-0}" = "1" ]; then
     echo "SDDM service not found; continuing due to OMACACHY_ALLOW_NO_SDDM=1" >&2
-    exit 0
+  elif [ "${OMACACHY_REQUIRE_SDDM:-0}" = "1" ]; then
+    echo "SDDM service not found; failing due to OMACACHY_REQUIRE_SDDM=1" >&2
+    exit 1
+  else
+    echo "SDDM service not found; continuing in compatibility mode. Set OMACACHY_REQUIRE_SDDM=1 to enforce." >&2
   fi
-  echo "SDDM service not found; install/configure SDDM before switching sessions." >&2
-  exit 1
 fi
 
 case "$mode" in
   validate)
-    check_session_entries
-    if systemctl is-enabled sddm.service >/dev/null 2>&1; then
-      echo "sddm.service is enabled."
+    if [ "$sddm_present" -eq 0 ]; then
+      echo "Skipping SDDM validate checks because sddm.service is unavailable." >&2
     else
-      echo "sddm.service is not enabled; enable if this host should boot to SDDM." >&2
+      check_session_entries
+      if systemctl is-enabled sddm.service >/dev/null 2>&1; then
+        echo "sddm.service is enabled."
+      else
+        echo "sddm.service is not enabled; enable if this host should boot to SDDM." >&2
+      fi
     fi
     ;;
   status)
-    check_session_entries || true
+    if [ "$sddm_present" -eq 0 ]; then
+      echo "Skipping SDDM status checks because sddm.service is unavailable." >&2
+    else
+      check_session_entries || true
+    fi
     ;;
   enable)
+    if [ "$sddm_present" -eq 0 ]; then
+      echo "SDDM service not found; cannot enable sddm.service." >&2
+      exit 1
+    fi
     if [ "$EUID" -eq 0 ]; then
       systemctl enable sddm.service
     else
