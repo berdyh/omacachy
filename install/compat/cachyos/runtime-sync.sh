@@ -39,8 +39,6 @@ prune_backups() {
       ;;
   esac
 
-  [ "$BACKUP_KEEP" -gt 0 ] || return 0
-
   mapfile -t backups < <(find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d | sort)
   local count="${#backups[@]}"
   [ "$count" -gt "$BACKUP_KEEP" ] || return 0
@@ -128,5 +126,5 @@ SYNC_DONE=1
 echo "Runtime sync completed safely at: $RUNTIME_DIR"
 if [ -n "$BACKUP_DIR" ]; then
   echo "Rollback checkpoint retained at: $BACKUP_DIR"
-  prune_backups
+  prune_backups || echo "Warning: backup pruning failed (non-fatal)" >&2
 fi

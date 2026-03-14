@@ -50,7 +50,13 @@ case "$mode" in
     if [ "$sddm_present" -eq 0 ]; then
       echo "Skipping SDDM validate checks because sddm.service is unavailable." >&2
     else
-      check_session_entries
+      if ! check_session_entries; then
+        if [ "${OMACACHY_REQUIRE_SDDM:-0}" = "1" ]; then
+          echo "SDDM session entries missing and OMACACHY_REQUIRE_SDDM=1." >&2
+          exit 1
+        fi
+        echo "Warning: no SDDM wayland session entries found; continuing in compatibility mode." >&2
+      fi
       if systemctl is-enabled sddm.service >/dev/null 2>&1; then
         echo "sddm.service is enabled."
       else

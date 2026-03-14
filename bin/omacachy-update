@@ -25,6 +25,7 @@ else
 fi
 
 "$REPO_ROOT/install/compat/cachyos/detect.sh"
+"$REPO_ROOT/install/compat/cachyos/preflight.sh"
 "$REPO_ROOT/bin/omacachy-sync-upstream"
 "$REPO_ROOT/bin/omacachy-apply-patches"
 "$REPO_ROOT/install/compat/cachyos/enforce-boundaries.sh"
