@@ -48,7 +48,7 @@ fi
 if [ -d "$OVERLAY_DIR" ] && [ "$(find "$OVERLAY_DIR" -mindepth 1 ! -name '.gitkeep' ! -name 'README.md' -print -quit)" ]; then
   (
     cd "$OVERLAY_DIR"
-    find . -mindepth 1 \(-type f -o -type l\) ! -name '.gitkeep' ! -name 'README.md' -print0 | sort -z |
+    find . -mindepth 1 \( -type f -o -type l \) ! -name '.gitkeep' ! -name 'README.md' -print0 | sort -z |
       while IFS= read -r -d '' path; do
         cp -a --parents "$path" "$RUNTIME_DIR"
       done

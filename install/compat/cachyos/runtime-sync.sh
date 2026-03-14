@@ -22,11 +22,34 @@ LOCK_ACQUIRED=0
 ROLLBACK_DONE=0
 SYNC_DONE=0
 BACKUP_DIR=""
+BACKUP_KEEP="${OMACACHY_BACKUP_KEEP:-10}"
 
 cleanup() {
   if [ -n "$WORK_DIR" ] && [ -d "$WORK_DIR" ]; then
     rm -rf "${WORK_DIR:?}"
   fi
+}
+
+
+prune_backups() {
+  case "$BACKUP_KEEP" in
+    ''|*[!0-9]*)
+      echo "Invalid OMACACHY_BACKUP_KEEP value: $BACKUP_KEEP (must be non-negative integer)" >&2
+      return 1
+      ;;
+  esac
+
+  [ "$BACKUP_KEEP" -gt 0 ] || return 0
+
+  mapfile -t backups < <(find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d | sort)
+  local count="${#backups[@]}"
+  [ "$count" -gt "$BACKUP_KEEP" ] || return 0
+
+  local remove_count=$((count - BACKUP_KEEP))
+  local i
+  for ((i=0; i<remove_count; i++)); do
+    rm -rf "${backups[$i]:?}"
+  done
 }
 
 rollback() {
@@ -105,4 +128,5 @@ SYNC_DONE=1
 echo "Runtime sync completed safely at: $RUNTIME_DIR"
 if [ -n "$BACKUP_DIR" ]; then
   echo "Rollback checkpoint retained at: $BACKUP_DIR"
+  prune_backups
 fi
