@@ -12,8 +12,14 @@ else
   echo "Warning: /etc/default/limine not found." >&2
 fi
 
-if rg -n --fixed-strings '/boot/limine.conf' "${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"/install 2>/dev/null; then
-  echo "Warning: runtime references /boot/limine.conf directly; omacachy will not execute takeover paths." >&2
+runtime_install_dir="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}/install"
+if [ -d "$runtime_install_dir" ]; then
+  while IFS= read -r runtime_file; do
+    if grep -qF "/boot/limine.conf" "$runtime_file" 2>/dev/null; then
+      echo "Warning: runtime references /boot/limine.conf directly; omacachy will not execute takeover paths." >&2
+      break
+    fi
+  done < <(find "$runtime_install_dir" -type f)
 fi
 
 if [ "${OMACACHY_APPLY_LIMINE:-0}" != "1" ]; then

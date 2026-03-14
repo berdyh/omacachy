@@ -47,7 +47,7 @@ fi
 
 bindings_file="$RUNTIME_DIR/config/hypr/bindings.conf"
 if [ -f "$bindings_file" ]; then
-  rg -n "SUPER.*Return|SUPER.*space|SUPER.*ALT.*space" "$bindings_file" >/dev/null || \
+  grep -Eq "SUPER.*Return|SUPER.*space|SUPER.*ALT.*space" "$bindings_file" || \
     fail "expected SUPER keybindings not present in $bindings_file"
 else
   fail "bindings file missing: $bindings_file"

@@ -18,7 +18,7 @@ forbidden_patterns=(
 
 while IFS= read -r file; do
   for pattern in "${forbidden_patterns[@]}"; do
-    if rg -n --fixed-strings "$pattern" "$file" >/dev/null 2>&1; then
+    if grep -qF "$pattern" "$file" 2>/dev/null; then
       echo "Boundary violation candidate: $file contains '$pattern'" >&2
       exit 1
     fi
