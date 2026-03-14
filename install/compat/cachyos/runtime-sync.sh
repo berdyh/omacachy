@@ -41,7 +41,9 @@ on_exit() {
   rc=$?
 
   if [ "$rc" -ne 0 ] && [ "$SYNC_DONE" -eq 0 ]; then
-    rollback
+    rollback || {
+      echo "rollback failed" >&2
+    }
   fi
 
   if [ "$LOCK_ACQUIRED" -eq 1 ]; then
