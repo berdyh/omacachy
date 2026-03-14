@@ -62,9 +62,9 @@ fi
 
 bindings_file="$RUNTIME_DIR/config/hypr/bindings.conf"
 if [ -f "$bindings_file" ]; then
-  rg -n "SUPER[[:space:]]*,[[:space:]]*Return" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+Return in $bindings_file"
-  rg -n "SUPER[[:space:]]*,[[:space:]]*space" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+space in $bindings_file"
-  rg -n "SUPER[[:space:]]+ALT[[:space:]]*,[[:space:]]*space" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+ALT+space in $bindings_file"
+  rg -n "SUPER[[:space:]]*,[[:space:]]*Return([[:space:]]*,|$)" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+Return in $bindings_file"
+  rg -n "SUPER[[:space:]]*,[[:space:]]*space([[:space:]]*,|$)" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+space in $bindings_file"
+  rg -n "SUPER[[:space:]]+ALT[[:space:]]*,[[:space:]]*space([[:space:]]*,|$)" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+ALT+space in $bindings_file"
 else
   fail "bindings file missing: $bindings_file"
 fi
