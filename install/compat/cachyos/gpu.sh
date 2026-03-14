@@ -9,7 +9,7 @@ if ! command -v lspci >/dev/null 2>&1; then
   exit 0
 fi
 
-pci_out="$(lspci -nn | grep -Ei 'vga|3d|display controller' || true)"
+pci_out="$(lspci -nn | grep -Ei 'vga|3d|display' || true)"
 [ -n "$pci_out" ] || { echo "No display adapters detected."; exit 0; }
 
 echo "Detected display adapters:"
@@ -29,7 +29,7 @@ if echo "$pci_out" | grep -Eiq 'intel'; then
   has_intel=1
 fi
 
-profile=""
+profile="unknown"
 if [ "$has_nvidia" -eq 1 ] && [ "$has_intel" -eq 1 ]; then
   profile="hybrid-intel-nvidia"
 elif [ "$has_nvidia" -eq 1 ] && [ "$has_amd" -eq 1 ]; then
@@ -40,8 +40,6 @@ elif [ "$has_amd" -eq 1 ]; then
   profile="amd"
 elif [ "$has_intel" -eq 1 ]; then
   profile="intel"
-else
-  profile="unknown"
 fi
 
 echo "GPU profile classification: $profile"
