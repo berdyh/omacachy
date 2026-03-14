@@ -19,9 +19,15 @@ has_nvidia=0
 has_amd=0
 has_intel=0
 
-echo "$pci_out" | grep -Eiq 'nvidia' && has_nvidia=1 || true
-echo "$pci_out" | grep -Eiq 'amd|advanced micro devices|ati' && has_amd=1 || true
-echo "$pci_out" | grep -Eiq 'intel' && has_intel=1 || true
+if echo "$pci_out" | grep -Eiq 'nvidia'; then
+  has_nvidia=1
+fi
+if echo "$pci_out" | grep -Eiq 'amd|advanced micro devices|ati'; then
+  has_amd=1
+fi
+if echo "$pci_out" | grep -Eiq 'intel'; then
+  has_intel=1
+fi
 
 profile=""
 if [ "$has_nvidia" -eq 1 ] && [ "$has_intel" -eq 1 ]; then

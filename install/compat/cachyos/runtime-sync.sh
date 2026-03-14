@@ -31,7 +31,7 @@ HAS_LOCK=0
 
 cleanup() {
   if [ "$SWAP_COMPLETE" -eq 1 ]; then
-    rm -rf "$WORK_DIR"
+    rm -rf "${WORK_DIR:?}"
   fi
 }
 
@@ -41,7 +41,7 @@ rollback() {
   ROLLBACK_DONE=1
 
   if [ -n "$BACKUP_DIR" ] && [ -d "$BACKUP_DIR" ]; then
-    rm -rf "$RUNTIME_DIR"
+    rm -rf "${RUNTIME_DIR:?}"
     cp -a "$BACKUP_DIR" "$RUNTIME_DIR"
     echo "Rolled back runtime to checkpoint: $BACKUP_DIR" >&2
   fi
@@ -88,18 +88,18 @@ for preserve in "${PRESERVE_PATHS[@]}"; do
   dst="$NEW_TREE/$preserve"
   if [ -e "$src" ]; then
     mkdir -p "$(dirname "$dst")"
-    rm -rf "$dst"
+    rm -rf "${dst:?}"
     cp -a "$src" "$dst"
     echo "Preserved runtime path: $preserve"
   fi
 done
 
 for regen in "${REGENERATE_PATHS[@]}"; do
-  rm -rf "$RUNTIME_DIR/$regen"
+  rm -rf "${RUNTIME_DIR:?}/$regen"
   echo "Regenerated runtime path: $regen"
 done
 
-rm -rf "$RUNTIME_DIR"
+rm -rf "${RUNTIME_DIR:?}"
 mkdir -p "$(dirname "$RUNTIME_DIR")"
 
 if ! mv "$NEW_TREE" "$RUNTIME_DIR"; then

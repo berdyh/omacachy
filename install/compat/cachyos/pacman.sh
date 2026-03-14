@@ -5,7 +5,12 @@ set -euo pipefail
 # We write a standalone snippet and instruct explicit include by admin.
 
 SNIPPET_PATH="${OMACACHY_PACMAN_SNIPPET:-/etc/pacman.d/omacachy-omarchy.conf}"
-OMARCHY_REPO_BLOCK='[omarchy]\nSigLevel = Optional TrustAll\nServer = https://pkg.omarchy.org/$repo/$arch\n'
+OMARCHY_REPO_BLOCK=$(cat <<'EOC'
+[omarchy]
+SigLevel = Optional TrustAll
+Server = https://pkg.omarchy.org/$repo/$arch
+EOC
+)
 
 if [ "${EUID}" -ne 0 ]; then
   if sudo -n true 2>/dev/null; then

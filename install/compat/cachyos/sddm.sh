@@ -44,7 +44,9 @@ case "$mode" in
     fi
     ;;
   status)
-    check_session_entries || true
+    if ! check_session_entries; then
+      :
+    fi
     ;;
   enable)
     if [ "$EUID" -eq 0 ]; then
