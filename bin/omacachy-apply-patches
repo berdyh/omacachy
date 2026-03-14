@@ -22,7 +22,7 @@ apply_patch_once() {
     return 0
   fi
 
-  if git -C "$RUNTIME_DIR" apply --check "$patch"; then
+  if git -C "$RUNTIME_DIR" apply --check "$patch" >/dev/null 2>&1; then
     git -C "$RUNTIME_DIR" apply --whitespace=fix "$patch"
     date -Iseconds > "$stamp_file"
     echo "Applied patch: $patch_name"

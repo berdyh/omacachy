@@ -4,10 +4,11 @@ set -euo pipefail
 UPSTREAM_DIR="${UPSTREAM_DIR:-}"
 RUNTIME_DIR="${OMARCHY_RUNTIME_DIR:-$HOME/.local/share/omarchy}"
 STATE_DIR="${OMACACHY_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/omacachy}"
-TMP_DIR="${TMPDIR:-/tmp}"
 LOCK_FILE="$STATE_DIR/update.lock"
 BACKUP_ROOT="$STATE_DIR/backups"
-WORK_DIR="$TMP_DIR/omacachy-runtime-sync.$$"
+RUNTIME_PARENT="$(dirname "$RUNTIME_DIR")"
+WORK_DIR_BASE="$RUNTIME_PARENT/.omacachy-tmp"
+WORK_DIR=""
 
 PRESERVE_PATHS=(
   "local"
@@ -23,7 +24,9 @@ SYNC_DONE=0
 BACKUP_DIR=""
 
 cleanup() {
-  rm -rf "${WORK_DIR:?}"
+  if [ -n "$WORK_DIR" ] && [ -d "$WORK_DIR" ]; then
+    rm -rf "${WORK_DIR:?}"
+  fi
 }
 
 rollback() {
@@ -55,7 +58,7 @@ on_exit() {
 }
 trap on_exit EXIT
 
-mkdir -p "$STATE_DIR" "$BACKUP_ROOT"
+mkdir -p "$STATE_DIR" "$BACKUP_ROOT" "$RUNTIME_PARENT" "$WORK_DIR_BASE"
 
 if [ -z "$UPSTREAM_DIR" ] || [ ! -d "$UPSTREAM_DIR/.git" ]; then
   echo "UPSTREAM_DIR must point to a cloned omarchy-upstream git repository." >&2
@@ -70,7 +73,7 @@ else
   exit 1
 fi
 
-mkdir -p "$WORK_DIR"
+WORK_DIR="$(mktemp -d "$WORK_DIR_BASE/runtime-sync.XXXXXX")"
 NEW_TREE="$WORK_DIR/new"
 mkdir -p "$NEW_TREE"
 cp -a "$UPSTREAM_DIR"/. "$NEW_TREE"/
@@ -94,7 +97,7 @@ for preserve in "${PRESERVE_PATHS[@]}"; do
 done
 
 rm -rf "${RUNTIME_DIR:?}"
-mkdir -p "$(dirname "$RUNTIME_DIR")"
+mkdir -p "$RUNTIME_PARENT"
 
 mv "$NEW_TREE" "$RUNTIME_DIR"
 SYNC_DONE=1

@@ -18,7 +18,7 @@ require_cmd() {
 [ -d "$RUNTIME_DIR/bin" ] || fail "runtime bin missing: $RUNTIME_DIR/bin"
 command -v rg >/dev/null 2>&1 || fail "rg (ripgrep) is required for runtime validation"
 
-if [ "$mode" != "post-install" ]; then
+if [ "$mode" = "full" ]; then
   case ":$PATH:" in
     *":$LOCAL_BIN:"*) ;;
     *) fail "PATH is missing $LOCAL_BIN; run post-install/session env refresh" ;;
@@ -62,8 +62,9 @@ fi
 
 bindings_file="$RUNTIME_DIR/config/hypr/bindings.conf"
 if [ -f "$bindings_file" ]; then
-  rg -n "SUPER.*Return|SUPER.*space|SUPER.*ALT.*space" "$bindings_file" >/dev/null || \
-    fail "expected SUPER keybindings not present in $bindings_file"
+  rg -n "SUPER.*Return" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+Return in $bindings_file"
+  rg -n "SUPER.*space" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+space in $bindings_file"
+  rg -n "SUPER.*ALT.*space" "$bindings_file" >/dev/null || fail "missing required keybinding: SUPER+ALT+space in $bindings_file"
 else
   fail "bindings file missing: $bindings_file"
 fi

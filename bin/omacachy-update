@@ -11,6 +11,11 @@ if [ "$(id -u)" -eq 0 ]; then
   exit 1
 fi
 
+if ! command -v paru >/dev/null 2>&1; then
+  echo "paru is required for omacachy-update. Install paru and rerun update." >&2
+  exit 1
+fi
+
 mkdir -p "$STATE_DIR"
 if mkdir "$RUN_LOCK" 2>/dev/null; then
   trap 'rmdir "$RUN_LOCK" >/dev/null 2>&1 || true' EXIT
